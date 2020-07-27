@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_offline/flutter_offline.dart';
 import 'package:music/src/bloc/music_list_bloc.dart';
 import 'package:music/src/models/music_list.dart';
 import 'package:music/src/ui/track_details.dart';
@@ -22,36 +23,89 @@ class MusicistDisplay extends StatelessWidget {
   Widget build(BuildContext context) {
     blocMusicList.fetchAllMusic();
     return Scaffold(
-      appBar: AppBar(title: Text('Trending'), actions: <Widget>[
-        Padding(
-            padding: EdgeInsets.only(right: 20.0),
-            child: GestureDetector(
-                onTap: () {},
-                child: Row(
-                  children: [
-                    Text("Bookmark ",
-                        style: TextStyle(
-                          fontSize: 20,
-                          color: Colors.white,
-                        )),
-                    Icon(Icons.collections_bookmark)
-                  ],
-                ))),
-      ]),
-      body: StreamBuilder(
-        stream: blocMusicList.allMusic,
-        builder: (context, AsyncSnapshot<MusicList> snapshot) {
-          if (snapshot.hasData) {
-            return buildList(snapshot);
-          } else if (snapshot.hasError) {
-            return Text(snapshot.error.toString());
-          }
-          return Container(
-              alignment: Alignment.center,
-              child: Center(child: CircularProgressIndicator()));
-        },
-      ),
-    );
+        appBar: AppBar(title: Text('Trending'), actions: <Widget>[
+          Padding(
+              padding: EdgeInsets.only(right: 20.0),
+              child: GestureDetector(
+                  onTap: () {},
+                  child: Row(
+                    children: [
+                      Text("Bookmark ",
+                          style: TextStyle(
+                            fontSize: 20,
+                            color: Colors.white,
+                          )),
+                      Icon(Icons.collections_bookmark)
+                    ],
+                  ))),
+        ]),
+        body: Builder(
+          builder: (BuildContext context) {
+            return OfflineBuilder(
+                connectivityBuilder: (BuildContext context,
+                    ConnectivityResult connectivity, Widget child) {
+                  final bool connected =
+                      connectivity != ConnectivityResult.none;
+                  return Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      child,
+                      Positioned(
+                        left: 0.0,
+                        right: 0.0,
+                        height: MediaQuery.of(context).size.height,
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          color: connected ? null : Color(0xFFEE4400),
+                          child: connected
+                              ? StreamBuilder(
+                                  stream: blocMusicList.allMusic,
+                                  builder: (context,
+                                      AsyncSnapshot<MusicList> snapshot) {
+                                    if (snapshot.hasData) {
+                                      return buildList(snapshot);
+                                    } else if (snapshot.hasError) {
+                                      return Text(snapshot.error.toString());
+                                    }
+                                    return Container(
+                                        alignment: Alignment.center,
+                                        child: Center(
+                                            child:
+                                                CircularProgressIndicator()));
+                                  },
+                                )
+                              : Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    Text(
+                                      "OFFLINE",
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    SizedBox(
+                                      width: 8.0,
+                                    ),
+                                    SizedBox(
+                                      width: 12.0,
+                                      height: 12.0,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2.0,
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                                Colors.white),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+                child: Container());
+          },
+        )
+        //
+        );
   }
 
   Widget buildList(AsyncSnapshot<MusicList> snapshot) {
