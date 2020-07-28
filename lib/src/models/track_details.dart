@@ -17,11 +17,12 @@ class TrackDetails {
   Message message;
 
   factory TrackDetails.fromJson(Map<String, dynamic> json) => TrackDetails(
-        message: Message.fromJson(json["message"]),
+        message:
+            json["message"] == null ? null : Message.fromJson(json["message"]),
       );
 
   Map<String, dynamic> toJson() => {
-        "message": message.toJson(),
+        "message": message == null ? null : message.toJson(),
       };
 }
 
@@ -35,13 +36,15 @@ class Message {
   Body body;
 
   factory Message.fromJson(Map<String, dynamic> json) => Message(
-        header: Header.fromJson(json["header"]),
-        body: Body.fromJson(json["body"]),
+        header: json["header"] == null ? null : Header.fromJson(json["header"]),
+        body: json["header"]["status_code"] != 200
+            ? null
+            : Body.fromJson(json["body"]),
       );
 
   Map<String, dynamic> toJson() => {
-        "header": header.toJson(),
-        "body": body.toJson(),
+        "header": header == null ? null : header.toJson(),
+        "body": body == null ? null : body.toJson(),
       };
 }
 
@@ -53,11 +56,11 @@ class Body {
   Track track;
 
   factory Body.fromJson(Map<String, dynamic> json) => Body(
-        track: Track.fromJson(json["track"]),
+        track: json["track"] == null ? null : Track.fromJson(json["track"]),
       );
 
   Map<String, dynamic> toJson() => {
-        "track": track.toJson(),
+        "track": track == null ? null : track.toJson(),
       };
 }
 
@@ -107,51 +110,65 @@ class Track {
   PrimaryGenres primaryGenres;
 
   factory Track.fromJson(Map<String, dynamic> json) => Track(
-        trackId: json["track_id"],
-        trackName: json["track_name"],
-        trackNameTranslationList: List<dynamic>.from(
-            json["track_name_translation_list"].map((x) => x)),
-        trackRating: json["track_rating"],
-        commontrackId: json["commontrack_id"],
-        instrumental: json["instrumental"],
-        explicit: json["explicit"],
-        hasLyrics: json["has_lyrics"],
-        hasSubtitles: json["has_subtitles"],
-        hasRichsync: json["has_richsync"],
-        numFavourite: json["num_favourite"],
-        albumId: json["album_id"],
-        albumName: json["album_name"],
-        artistId: json["artist_id"],
-        artistName: json["artist_name"],
-        trackShareUrl: json["track_share_url"],
-        trackEditUrl: json["track_edit_url"],
-        restricted: json["restricted"],
-        updatedTime: DateTime.parse(json["updated_time"]),
-        primaryGenres: PrimaryGenres.fromJson(json["primary_genres"]),
+        trackId: json["track_id"] == null ? null : json["track_id"],
+        trackName: json["track_name"] == null ? null : json["track_name"],
+        trackNameTranslationList: json["track_name_translation_list"] == null
+            ? null
+            : List<dynamic>.from(
+                json["track_name_translation_list"].map((x) => x)),
+        trackRating: json["track_rating"] == null ? null : json["track_rating"],
+        commontrackId:
+            json["commontrack_id"] == null ? null : json["commontrack_id"],
+        instrumental:
+            json["instrumental"] == null ? null : json["instrumental"],
+        explicit: json["explicit"] == null ? null : json["explicit"],
+        hasLyrics: json["has_lyrics"] == null ? null : json["has_lyrics"],
+        hasSubtitles:
+            json["has_subtitles"] == null ? null : json["has_subtitles"],
+        hasRichsync: json["has_richsync"] == null ? null : json["has_richsync"],
+        numFavourite:
+            json["num_favourite"] == null ? null : json["num_favourite"],
+        albumId: json["album_id"] == null ? null : json["album_id"],
+        albumName: json["album_name"] == null ? null : json["album_name"],
+        artistId: json["artist_id"] == null ? null : json["artist_id"],
+        artistName: json["artist_name"] == null ? null : json["artist_name"],
+        trackShareUrl:
+            json["track_share_url"] == null ? null : json["track_share_url"],
+        trackEditUrl:
+            json["track_edit_url"] == null ? null : json["track_edit_url"],
+        restricted: json["restricted"] == null ? null : json["restricted"],
+        updatedTime: json["updated_time"] == null
+            ? null
+            : DateTime.parse(json["updated_time"]),
+        primaryGenres: json["primary_genres"] == null
+            ? null
+            : PrimaryGenres.fromJson(json["primary_genres"]),
       );
 
   Map<String, dynamic> toJson() => {
-        "track_id": trackId,
-        "track_name": trackName,
-        "track_name_translation_list":
-            List<dynamic>.from(trackNameTranslationList.map((x) => x)),
-        "track_rating": trackRating,
-        "commontrack_id": commontrackId,
-        "instrumental": instrumental,
-        "explicit": explicit,
-        "has_lyrics": hasLyrics,
-        "has_subtitles": hasSubtitles,
-        "has_richsync": hasRichsync,
-        "num_favourite": numFavourite,
-        "album_id": albumId,
-        "album_name": albumName,
-        "artist_id": artistId,
-        "artist_name": artistName,
-        "track_share_url": trackShareUrl,
-        "track_edit_url": trackEditUrl,
-        "restricted": restricted,
-        "updated_time": updatedTime.toIso8601String(),
-        "primary_genres": primaryGenres.toJson(),
+        "track_id": trackId == null ? null : trackId,
+        "track_name": trackName == null ? null : trackName,
+        "track_name_translation_list": trackNameTranslationList == null
+            ? null
+            : List<dynamic>.from(trackNameTranslationList.map((x) => x)),
+        "track_rating": trackRating == null ? null : trackRating,
+        "commontrack_id": commontrackId == null ? null : commontrackId,
+        "instrumental": instrumental == null ? null : instrumental,
+        "explicit": explicit == null ? null : explicit,
+        "has_lyrics": hasLyrics == null ? null : hasLyrics,
+        "has_subtitles": hasSubtitles == null ? null : hasSubtitles,
+        "has_richsync": hasRichsync == null ? null : hasRichsync,
+        "num_favourite": numFavourite == null ? null : numFavourite,
+        "album_id": albumId == null ? null : albumId,
+        "album_name": albumName == null ? null : albumName,
+        "artist_id": artistId == null ? null : artistId,
+        "artist_name": artistName == null ? null : artistName,
+        "track_share_url": trackShareUrl == null ? null : trackShareUrl,
+        "track_edit_url": trackEditUrl == null ? null : trackEditUrl,
+        "restricted": restricted == null ? null : restricted,
+        "updated_time":
+            updatedTime == null ? null : updatedTime.toIso8601String(),
+        "primary_genres": primaryGenres == null ? null : primaryGenres.toJson(),
       };
 }
 
@@ -163,12 +180,15 @@ class PrimaryGenres {
   List<dynamic> musicGenreList;
 
   factory PrimaryGenres.fromJson(Map<String, dynamic> json) => PrimaryGenres(
-        musicGenreList:
-            List<dynamic>.from(json["music_genre_list"].map((x) => x)),
+        musicGenreList: json["music_genre_list"] == null
+            ? null
+            : List<dynamic>.from(json["music_genre_list"].map((x) => x)),
       );
 
   Map<String, dynamic> toJson() => {
-        "music_genre_list": List<dynamic>.from(musicGenreList.map((x) => x)),
+        "music_genre_list": musicGenreList == null
+            ? null
+            : List<dynamic>.from(musicGenreList.map((x) => x)),
       };
 }
 
@@ -182,12 +202,14 @@ class Header {
   double executeTime;
 
   factory Header.fromJson(Map<String, dynamic> json) => Header(
-        statusCode: json["status_code"],
-        executeTime: json["execute_time"].toDouble(),
+        statusCode: json["status_code"] == null ? null : json["status_code"],
+        executeTime: json["execute_time"] == null
+            ? null
+            : json["execute_time"].toDouble(),
       );
 
   Map<String, dynamic> toJson() => {
-        "status_code": statusCode,
-        "execute_time": executeTime,
+        "status_code": statusCode == null ? null : statusCode,
+        "execute_time": executeTime == null ? null : executeTime,
       };
 }

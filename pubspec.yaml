@@ -33,7 +33,7 @@ dependencies:
   http: ^0.12.2
   shared_preferences: ^0.5.8
   flutter_offline: "^0.3.0"
-  connectivity: ^0.4.3+6
+  connectivity: ^0.4.9
 
 dev_dependencies:
   flutter_test:

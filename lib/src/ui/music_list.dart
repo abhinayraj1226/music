@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_offline/flutter_offline.dart';
 import 'package:music/src/bloc/music_list_bloc.dart';
 import 'package:music/src/models/music_list.dart';
+import 'package:music/src/ui/bookmaked.dart';
 import 'package:music/src/ui/track_details.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -9,25 +10,28 @@ class MusicistDisplay extends StatelessWidget {
   Future<bool> checkIsbookMarked(String trackId) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String> trackList = prefs.getStringList("trackList");
+
     bool isSvaed = false;
     if (trackList != null) {
       if (trackList.contains(trackId)) {
         isSvaed = true;
+        print(isSvaed);
       }
-      isSvaed = false;
     }
     return isSvaed;
   }
 
   @override
   Widget build(BuildContext context) {
-    blocMusicList.fetchAllMusic();
     return Scaffold(
         appBar: AppBar(title: Text('Trending'), actions: <Widget>[
           Padding(
               padding: EdgeInsets.only(right: 20.0),
               child: GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => BookMarked()));
+                  },
                   child: Row(
                     children: [
                       Text("Bookmark ",
@@ -46,66 +50,73 @@ class MusicistDisplay extends StatelessWidget {
                     ConnectivityResult connectivity, Widget child) {
                   final bool connected =
                       connectivity != ConnectivityResult.none;
-                  return Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      child,
-                      Positioned(
-                        left: 0.0,
-                        right: 0.0,
-                        height: MediaQuery.of(context).size.height,
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          color: connected ? null : Color(0xFFEE4400),
-                          child: connected
-                              ? StreamBuilder(
-                                  stream: blocMusicList.allMusic,
-                                  builder: (context,
-                                      AsyncSnapshot<MusicList> snapshot) {
-                                    if (snapshot.hasData) {
-                                      return buildList(snapshot);
-                                    } else if (snapshot.hasError) {
-                                      return Text(snapshot.error.toString());
-                                    }
-                                    return Container(
-                                        alignment: Alignment.center,
-                                        child: Center(
-                                            child:
-                                                CircularProgressIndicator()));
-                                  },
-                                )
-                              : Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Text(
-                                      "OFFLINE",
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                    SizedBox(
-                                      width: 8.0,
-                                    ),
-                                    SizedBox(
-                                      width: 12.0,
-                                      height: 12.0,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2.0,
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                                Colors.white),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                        ),
-                      ),
-                    ],
-                  );
+                  return Container(
+                      child: connected
+                          ? Container(child: musicList())
+                          : Container(
+                              child: Center(
+                                  child: Text(
+                              "No Internet Connection",
+                              style: titleStyle(),
+                            ))));
                 },
                 child: Container());
           },
         )
         //
         );
+  }
+
+  Widget musicList() {
+    blocMusicList.fetchAllMusic();
+    return StreamBuilder(
+      stream: blocMusicList.allMusic,
+      builder: (context, AsyncSnapshot<MusicList> snapshot) {
+        if (snapshot.hasData) {
+          if (snapshot.data.message.header.statusCode == 200) {
+            print(snapshot.data.message.body.trackList.length);
+            return buildList(snapshot);
+          } else {
+            return Container(
+                alignment: Alignment.center,
+                child: Center(
+                    child: Column(children: [
+                  Text(
+                    "Error: " +
+                        snapshot.data.message.header.statusCode.toString(),
+                    style: titleStyle(),
+                  ),
+                  RaisedButton(
+                      onPressed: () => {
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => build(context)))
+                          },
+                      child: Text(
+                        "Try Again !",
+                        style: titleStyle(),
+                      ))
+                ])));
+          }
+        } else if (snapshot.hasError) {
+          return Container(
+              child: Center(
+                  child: Text(
+            "Error: ",
+            style: titleStyle(),
+          )));
+        }
+        return Container(
+            alignment: Alignment.center,
+            child: Center(child: CircularProgressIndicator()));
+      },
+    );
+  }
+
+  TextStyle titleStyle() {
+    return TextStyle(
+        fontSize: 25.0, color: Colors.white54, fontWeight: FontWeight.bold);
   }
 
   Widget buildList(AsyncSnapshot<MusicList> snapshot) {
@@ -137,21 +148,27 @@ class MusicistDisplay extends StatelessWidget {
                             // margin: EdgeInsets.fromLTRB(0, 0, 0, 0),
                             child: Column(
                               children: [
-                                Text(
-                                  "${snapshot.data.message.body.trackList[index].track.trackName}",
-                                  style: TextStyle(
-                                      fontSize: 20.0, color: Colors.white),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  softWrap: true,
+                                Container(
+                                  width: 200,
+                                  child: Text(
+                                    "${snapshot.data.message.body.trackList[index].track.trackName}",
+                                    style: TextStyle(
+                                        fontSize: 20.0, color: Colors.white),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    softWrap: true,
+                                  ),
                                 ),
-                                Text(
-                                  "${snapshot.data.message.body.trackList[index].track.albumName}",
-                                  style: TextStyle(
-                                      fontSize: 15.0, color: Colors.white54),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  softWrap: true,
+                                Container(
+                                  width: 200,
+                                  child: Text(
+                                    "${snapshot.data.message.body.trackList[index].track.albumName}",
+                                    style: TextStyle(
+                                        fontSize: 15.0, color: Colors.white54),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    softWrap: true,
+                                  ),
                                 ),
                               ],
                             ),
@@ -174,6 +191,12 @@ class MusicistDisplay extends StatelessWidget {
                 String trackId = snapshot
                     .data.message.body.trackList[index].track.trackId
                     .toString();
+                String trackName = snapshot.data.message.body.trackList[index]
+                            .track.trackName !=
+                        null
+                    ? snapshot
+                        .data.message.body.trackList[index].track.trackName
+                    : "NA";
                 bool isSaved = await checkIsbookMarked(trackId);
 
                 print("getting " + isSaved.toString());
@@ -181,7 +204,9 @@ class MusicistDisplay extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                         builder: (context) => TrackDetailsDisplay(
-                            trackId: trackId, isSaved: isSaved)));
+                            trackId: trackId,
+                            trackName: trackName,
+                            isSaved: isSaved)));
               },
             ),
           );

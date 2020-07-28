@@ -15,12 +15,17 @@ class ApiProvider {
     final response = await client.get(
         "https://api.musixmatch.com/ws/1.1/chart.tracks.get?apikey=$_apiKey");
     print(response.body.toString());
-    if (response.statusCode == 200) {
+    var data = json.decode(response.body);
+    var staatusCode = data["message"]["header"]["status_code"];
+
+    if (staatusCode == 200) {
+      print("getiing 200");
       // If the call to the server was successful, parse the JSON
       return MusicList.fromJson(json.decode(response.body));
     } else {
       // If that call was not successful, throw an error.
-      throw Exception('Failed to load post');
+      print("error");
+      return MusicList.fromJson(json.decode(response.body));
     }
   }
 
@@ -30,12 +35,19 @@ class ApiProvider {
         "https://api.musixmatch.com/ws/1.1/track.get?track_id=$trackId&apikey=$_apiKey");
     // https://api.musixmatch.com/ws/1.1/track.get?track_id=200357565&apikey=2d782bc7a52a41ba2fc1ef05b9cf40d7
     print(response.body.toString());
-    if (response.statusCode == 200) {
+    var data = json.decode(response.body);
+    // print("displayiong body part");
+    // print();
+    var staatusCode = data["message"]["header"]["status_code"];
+    // print(data["message"]["body"]["status_code"]["track_list"]);
+    if (staatusCode == 200) {
+      print("getting 200 in trackDetails");
       // If the call to the server was successful, parse the JSON
       return TrackDetails.fromJson(json.decode(response.body));
     } else {
+      print("wrong");
       // If that call was not successful, throw an error.
-      throw Exception('Failed to load post');
+      return TrackDetails.fromJson(json.decode(response.body));
     }
   }
 
@@ -46,15 +58,16 @@ class ApiProvider {
     // https://api.musixmatch.com/ws/1.1/track.lyrics.get?track_id=TRACK_ID&apikey=2d782bc7a52a41ba2fc1ef05b9cf40d7
 
     print(response.body.toString());
-    if (response.statusCode == 200) {
+    var data = json.decode(response.body);
+    var staatusCode = data["message"]["header"]["status_code"];
+    if (staatusCode == 200) {
+      print("getting 200 in lyrics");
       // If the call to the server was successful, parse the JSON
       return Lyrics.fromJson(json.decode(response.body));
-    } else if (response.statusCode == 401) {
-      // If the call to the server was successful, parse the JSON
-      throw Exception('Failed to load post');
     } else {
       // If that call was not successful, throw an error.
-      throw Exception('Failed to load post');
+      print("wrong");
+      return Lyrics.fromJson(json.decode(response.body));
     }
   }
 }
